@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <link href="https://fonts.googleapis.com/css?family=Roboto:100,300,400,500,700,900" rel="stylesheet">
+  <link href="https://use.fontawesome.com/releases/v5.0.13/css/all.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/vuetify@2.x/dist/vuetify.min.css" rel="stylesheet">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, minimal-ui">
+</head>
+<body>
+  <div id="app">
+    <v-app>
+      <v-main>
+        <v-container>
+            <v-card v-if="!isUserJoinedChatRoom">
+                <v-card-title>Join Chat Room Server</v-card-title>
+                <v-divider></v-divider>
+                <v-form v-model="joinChatRoomFormValid" ref="joinChatRoomForm">
+                    <v-container fluid>
+                        <v-text-field label="Username" v-model="username" :required="true" :rules="[v=> !!v || 'Username is required']"></v-text-field>
+                        <v-select label="Chat Room" v-model="chatroom" :items="chatRooms"  :required="true" :rules="[v=> !!v || 'Chatroom is required']"></v-select>
+                    </v-container>
+                    <v-card-actions>
+                        <v-spacer></v-spacer>
+                        <v-btn @click="joinChatRoom" color="success">Join Room</v-btn>
+                    </v-card-actions>
+                </v-form>
+            </v-card>
+            <v-card v-if="isUserJoinedChatRoom">
+                <v-card-title>Chat Server: {{chatroom}}</v-card-title>
+                <v-divider></v-divider>
+                <div class="d-flex justify-end pa-2">
+                    <v-btn @click="leaveChatRoom" small dark color="red">Leave Room</v-btn>
+                </div>
+                <v-container fluid class="d-flex">
+                    <v-navigation-drawer permanent>
+                        <v-list dense>
+                            <v-list-item v-for="user in chatroomUsers" class="caption mb-2">
+                                <v-badge
+                                    class="mr-3"
+                                        overlap
+                                        bottom
+                                        color="success"
+                                        dot>
+                                    <v-avatar size="40" color="blue-grey lighten-4">
+                                        <v-img src="images/defualt_user_photo.jpg"></v-img>
+                                    </v-avatar>
+                                </v-badge>
+                                <v-list-item-content v-text="user.username"></v-list-item-content>
+                            </v-list-item>
+                        </v-list>
+                    </v-navigation-drawer>
+                    <v-container ref="chatMessagesContainer" fluid class="overflow-auto flex-grow-1" style="max-height: 300px;">
+                        <template v-for="msg in chatMessages">
+                            <v-sheet  class="pa-2 mb-3" color="blue lighten-5">
+                                <span class="caption"><b class="primary--text">{{msg.username}}</b>&nbsp;{{formatDateTime(msg.time)}}</span><br/>
+                                <span v-html="msg.text"></span>
+                            </v-sheet>
+                        </template>
+                    </v-container>
+                </v-container>
+             
+                <v-container fluid>
+                    <v-textarea v-model="messageToSend" outlined auto-grow rows="2">
+                        <template v-slot:append>
+                            <v-btn @click="sendMessage" icon color="primary">
+                                <v-icon small>fa-paper-plane</v-icon>
+                            </v-btn>
+                        </template>
+                    </v-textarea>
+                </v-container>
+            </v-card>
+        </v-container>
+      </v-main>
+    </v-app>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/vue@2.x/dist/vue.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/vuetify@2.x/dist/vuetify.js"></script>
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="js/main.js"></script>
+</body>
+</html>
